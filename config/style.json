@@ -1,0 +1,359 @@
+{
+	"QMainWindow":[
+		{
+			"frameless": true,
+			"transluscentBg": true,
+			"sizeGrip": "sizeGrip",
+			"navigation":[
+				{
+					"minimize":"minimizeBtn",
+					"close": "closeBtn",
+					"restore":[
+						{	
+							"buttonName": "restoreBtn",
+							"normalIcon": ":/icons/icons/square.svg",
+							"maximizedIcon": ":/icons/icons/copy.svg"
+						}
+					],
+					"moveWindow": "headerContainer",
+					"tittleBar": "headerContainer"
+				}
+			]
+		}
+	],
+	"QCustomSlideMenu": [
+		{
+			"name": "leftMenuContainer",
+			"defaultSize": [{
+				"width": 45,
+				"height": "parent"
+			}],
+			"collapsedSize": [{
+				"width": 45,
+				"height": "parent"
+			}],
+			"expandedSize": [{
+				"width": 150,
+				"height": "parent"
+			}],
+			"toggleButton": [{
+				"buttonName": "menuBtn",
+				"icons": [{
+					"whenMenuIsCollapsed": ":/icons/icons/align-justify.svg",
+					"whenMenuIsExpanded": ":/icons/icons/chevron-left.svg"
+				}]
+			}],
+			"menuTransitionAnimation": [{
+				"animationDuration": 500,
+				"animationEasingCurve": "Linear"
+			}]
+		},
+		{
+			"name": "centerMenuContainer",
+			"defaultSize": [{
+				"width": 200,
+				"height": "parent"
+			}],
+			"collapsedSize": [{
+				"width": 0,
+				"height": "parent"
+			}],
+			"expandedSize": [{
+				"width": 200,
+				"height": "parent"
+			}],
+			"menuTransitionAnimation": [{
+				"animationDuration": 500,
+				"animationEasingCurve": "Linear"
+			}],
+			"toggleButton": [{
+				"buttonName": "moreMenuBtn"
+			}]
+		},
+		{
+			"name": "rightMenuContainer",
+			"defaultSize": [{
+				"width": 0,
+				"height": "parent"
+			}],
+			"collapsedSize": [{
+				"width": 0,
+				"height": "parent"
+			}],
+			"expandedSize": [{
+				"width": 250,
+				"height": "parent"
+			}],
+			"menuTransitionAnimation": [{
+				"animationDuration": 500,
+				"animationEasingCurve": "Linear"
+			}]
+		},
+		{
+			"name": "popupNotificationContainer",
+			"defaultSize": [{
+				"width": 0,
+				"height": "auto"
+			}],
+			"collapsedSize": [{
+				"width": 0,
+				"height": "auto"
+			}],
+			"expandedSize": [{
+				"width": 500,
+				"height": 100
+			}],
+			"menuTransitionAnimation": [{
+				"animationDuration": 500,
+				"animationEasingCurve": "Linear"
+			}],
+			"floatPosition": [
+				{
+					"relativeTo": "centralwidget",
+					"position": "center-center",
+					"shadow":[
+						{
+							"color": "#000",
+							"blurRadius": 20,
+							"xOffset": 0,
+							"yOffset": 0
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "serverDBContainer",
+			"defaultSize": [{
+				"width": 0,
+				"height": "auto"
+			}],
+			"collapsedSize": [{
+				"width": 0,
+				"height": "auto"
+			}],
+			"expandedSize": [{
+				"width": 250,
+				"height": 200
+			}],
+			"menuTransitionAnimation": [{
+				"animationDuration": 200,
+				"animationEasingCurve": "Linear"
+			}],
+			"floatPosition": [
+				{
+					"relativeTo": "centralwidget",
+					"position": "center-center",
+					"shadow":[
+						{
+							"color": "#000",
+							"blurRadius": 20,
+							"xOffset": 0,
+							"yOffset": 0
+						}
+					]
+				}
+			],
+			"toggleButton": [{
+				"buttonName": "loadMatchesFromDBBtn"
+			}]
+		},
+		{
+			"name": "startingTransactionsContainer",
+			"defaultSize": [{
+				"width": 0,
+				"height": "auto"
+			}],
+			"collapsedSize": [{
+				"width": 0,
+				"height": "auto"
+			}],
+			"expandedSize": [{
+				"width": 250,
+				"height": 400
+			}],
+			"menuTransitionAnimation": [{
+				"animationDuration": 200,
+				"animationEasingCurve": "Linear"
+			}],
+			"floatPosition": [
+				{
+					"relativeTo": "centralwidget",
+					"position": "center-center",
+					"shadow":[
+						{
+							"color": "#000",
+							"blurRadius": 20,
+							"xOffset": 0,
+							"yOffset": 0
+						}
+					]
+				}
+			],
+			"toggleButton": [{
+				"buttonName": "startingTransactionsBtn"
+			}]
+		},
+		{
+			"name": "manualMatchesContainer",
+			"defaultSize": [{
+				"width": 0,
+				"height": "auto"
+			}],
+			"collapsedSize": [{
+				"width": 0,
+				"height": "auto"
+			}],
+			"expandedSize": [{
+				"width": 350,
+				"height": 400
+			}],
+			"menuTransitionAnimation": [{
+				"animationDuration": 200,
+				"animationEasingCurve": "Linear"
+			}],
+			"floatPosition": [
+				{
+					"relativeTo": "centralwidget",
+					"position": "center-center",
+					"shadow":[
+						{
+							"color": "#000",
+							"blurRadius": 20,
+							"xOffset": 0,
+							"yOffset": 0
+						}
+					]
+				}
+			],
+			"toggleButton": [{
+				"buttonName": "manualMatchesBtn"
+			}]
+		},
+		{
+			"name": "manualUnmatchContainer",
+			"defaultSize": [{
+				"width": 0,
+				"height": "auto"
+			}],
+			"collapsedSize": [{
+				"width": 0,
+				"height": "auto"
+			}],
+			"expandedSize": [{
+				"width": 350,
+				"height": 400
+			}],
+			"menuTransitionAnimation": [{
+				"animationDuration": 200,
+				"animationEasingCurve": "Linear"
+			}],
+			"floatPosition": [
+				{
+					"relativeTo": "centralwidget",
+					"position": "center-center",
+					"shadow":[
+						{
+							"color": "#000",
+							"blurRadius": 20,
+							"xOffset": 0,
+							"yOffset": 0
+						}
+					]
+				}
+			],
+			"toggleButton": [{
+				"buttonName": "manualUnmatchBtn"
+			}]
+		},
+		{
+			"name": "refTableContainer",
+			"defaultSize": [{
+				"width": 0,
+				"height": "auto"
+			}],
+			"collapsedSize": [{
+				"width": 0,
+				"height": "auto"
+			}],
+			"expandedSize": [{
+				"width": 350,
+				"height": 400
+			}],
+			"menuTransitionAnimation": [{
+				"animationDuration": 200,
+				"animationEasingCurve": "Linear"
+			}],
+			"floatPosition": [
+				{
+					"relativeTo": "centralwidget",
+					"position": "center-center",
+					"shadow":[
+						{
+							"color": "#000",
+							"blurRadius": 20,
+							"xOffset": 0,
+							"yOffset": 0
+						}
+					]
+				}
+			],
+			"toggleButton": [{
+				"buttonName": "keyPartiesEntitiesBtn"
+			}]
+		},
+		{
+			"name": "categoriesContainer",
+			"defaultSize": [{
+				"width": 0,
+				"height": "auto"
+			}],
+			"collapsedSize": [{
+				"width": 0,
+				"height": "auto"
+			}],
+			"expandedSize": [{
+				"width": 350,
+				"height": 400
+			}],
+			"menuTransitionAnimation": [{
+				"animationDuration": 200,
+				"animationEasingCurve": "Linear"
+			}],
+			"floatPosition": [
+				{
+					"relativeTo": "centralwidget",
+					"position": "center-center",
+					"shadow":[
+						{
+							"color": "#000",
+							"blurRadius": 20,
+							"xOffset": 0,
+							"yOffset": 0
+						}
+					]
+				}
+			],
+			"toggleButton": [{
+				"buttonName": "loadCategoriesBtn"
+			}]
+		}
+	],
+	"QStackedWidget":[
+		{
+			"name":"mainPages",
+			"navigation":[
+				{
+					"navigationButtons":[
+						{
+							"homeBtn": "page_6",
+							"dataBtn": "page_7",
+							"reportBtn": "page_8"
+						}
+					]
+				}
+			]
+	
+		}
+	]
+}
