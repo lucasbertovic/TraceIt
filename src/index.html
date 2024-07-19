@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Filterable Tree Diagram</title>
+<style>
+
+  body, html {
+      overflow: hidden; /* Hide scrollbars */
+      height: 100%; /* Ensure full height */
+      margin: 0; /* Remove default margins */
+    }
+    #tree-container {
+      width: 2000px; 
+      height: 2000px; 
+      position: absolute;
+      cursor: grab; 
+      transform: translateX(0px) translateY(0px); 
+      pointer-events: auto;
+    }
+    #tree-container:active {
+      cursor: grabbing; 
+    }
+  .node {
+    cursor: pointer;
+  }
+  .node:hover {
+    fill: #ffb30e;
+  }
+  .node text {
+    font: 10px sans-serif;
+  }
+  .link {
+    fill: none;
+    stroke: #ccc;
+    stroke-width: 1.5px;
+  }
+</style>
+</head>
+<body bgcolor="#1f232a"> 
+<div id="tree-container"></div>
+
+<script src="https://d3js.org/d3.v6.min.js"></script>
+<script>
+let fullData; // Variable to store the original data
+let treeData; // Variable to store the filtered data
+ // Load tree data from a JSON file
+fetch('../config/tree.json')
+  .then(response => response.json())
+  .then(data => {
+  // Recursive function to filter the data
+  fullData = data;
+  configData = data.config
+  function filterTreeData(node) {
+      let filteredNode = {
+      name: node.name,
+      level: node.level,
+      category: node.category,
+      account: node.account,
+      date: node.date,
+      amount:node.amount,
+      taintedAmount: node.taintedAmount
+      };
+    // If the node has children, process each child recursively
+    if (node.children) {
+      filteredNode.children = node.children.map(child => filterTreeData(child));
+      }
+    return filteredNode;
+    }
+    
+  treeData = filterTreeData(fullData.trace);
+  console.log(treeData)
+
+  var margin = { top: 20, right: 90, bottom: 30, left: 90 };
+  var width = 80000 - margin.left - margin.right; // Switched width and height
+  var height = 96000 - margin.top - margin.bottom; // Switched width and height
+  
+  // Create SVG element
+  var svg = d3.select("#tree-container")
+    .append("svg")
+    .attr("width", width + margin.right + margin.left)
+    .attr("height", height + margin.top + margin.bottom);
+        
+  // Create a g element to hold the tree
+  var treeG = svg.append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  
+  // Create hierarchical layout
+  var tree = d3.tree().size([width, height]); 
+  tree.nodeSize([configData.hSpacing,configData.vSpacing]);
+  
+  // Assigns parent, children, height, depth
+  var root = d3.hierarchy(treeData, d => d.children);
+  
+  // Maps the node data to the tree layout
+  var nodes = tree(root);
+
+  let minX = Infinity;
+  let maxX = -Infinity;
+
+  // Traverse the hierarchy and update minX and maxX
+  root.each(node => {
+      if (node.x < minX) minX = node.x;
+      if (node.x > maxX) maxX = node.x;
+  });
+
+
+  const treeWidth = maxX - minX;
+
+  // This is where the tree should start. This should be the new minX
+  const xOffset = (width - treeWidth) / 2;
+
+  // Add links between nodes
+  treeG.selectAll(".link")
+    .data(root.links())
+    .enter().append("path")
+    .attr("class", "link")
+    .attr("d", d3.linkVertical() // Use linkVertical instead of linkHorizontal
+    .x(d => d.x -minX)
+    .y(d => d.y));
+        
+        
+  // Add nodes
+  const node = treeG.selectAll(".node")
+    .data(root.descendants())
+    .enter().append("g")
+    .attr("class", "node")
+    .attr("transform", d => `translate(${d.x-minX},${d.y})`)
+    .on("dblclick", function(event, d) {
+        nodeFunction(d, treeG);
+    }); 
+        
+  // Add outer circle
+  node.append("circle")
+    .attr("r", 10) // outer circle radius
+    .attr("fill",  function(d) {
+        return d.parent === null ? "yellow" : "#8cffff"; // If root node, fill with yellow
+      })
+    .attr("stroke", "#1c1c1c") // light blue stroke
+    .attr("stroke-width", 1.5);
+
+  // Add inner circle
+  node.append("circle")
+    .attr("r", 7) // inner circle radius
+    .attr("fill",   function(d) {
+        return d.parent === null ? "yellow" : "#ebebeb"; // If root node, fill with yellow
+      })
+    .attr("stroke", "none"); // no stroke
+
+  let initialX, initialY, currentX = margin.left, currentY = margin.top;
+
+  svg.call(d3.drag()
+    .on("start", function(event) {
+      // Store the initial position where the cursor is when dragging starts
+      initialX = event.x - currentX;
+      initialY = event.y - currentY;
+    })
+    .on("drag", function(event) {
+      // Calculate the new position based on the initial cursor position
+      currentX = event.x - initialX;
+      currentY = event.y - initialY;
+      
+      // Apply the new transformation
+      treeG.attr("transform", `translate(${currentX}, ${currentY})`);
+      })
+  );
+
+  node.append("rect")
+    .attr("x", 3)
+    .attr("y", 10)
+    .attr("width", 100)
+    .attr("height", 50)
+    .attr("fill", "black")
+    .attr("stroke", "white")
+    .attr("stroke-width", 0.5)
+    .attr("rx", 8)
+    .attr("opacity", configData.boxOpacity); 
+        
+  node.append("text")
+    .attr("y", 23) 
+    .attr("text-anchor", "middle")
+    .attr("font-size", "1.5em")
+    .attr("font-family", "sans-serif")
+    .attr("fill", "white")
+    .attr("opacity", configData.labelOpacity)
+    .html(function(d) {
+      return `<tspan x="10" text-anchor="start">${d.data.account ? d.data.account : (d.data.category || 'No Category')}</tspan>
+              <tspan x="10"  text-anchor="start" dy="15 ">${d.data.date}</tspan>
+              <tspan x="10"  text-anchor="start" dy="15">${d3.format("$,.2f")(d.data.taintedAmount)}</tspan>`;
+    });
+
+})
+.catch(error => {
+    console.error('Error loading tree data:', error);
+});
+    
+   
+function nodeFunction(node, treeG) {
+  console.log(node.data.name, node.depth);
+  
+  // Select all nodes that are currently yellow
+  var yellowNodes = treeG.selectAll(".node").filter(function(d) {
+    return d3.select(this).select("circle").attr("fill") === "yellow";
+  });
+  
+  // Reset the fill color of the yellow nodes
+  yellowNodes.selectAll("circle")
+    .attr("fill", function() {
+      if (d3.select(this).attr("r") === "10") { // Outer circle
+        return "#8cffff"; // Light blue fill
+      } else { // Inner circle
+        return "#ebebeb"; // Grey fill
+      }
+    });
+  
+  // Set the fill color of the current node to yellow
+  d3.select(event.target.parentNode).selectAll("circle").attr("fill", "yellow");
+}
+</script>
+</body>
+</html>

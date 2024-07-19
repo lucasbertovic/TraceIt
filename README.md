@@ -108,7 +108,6 @@ TraceIt enables users to efficiently navigate and refine the results of automate
 <table>
   <tr>
     <td><img src="ui/md/SearchMatches.PNG" alt="Search Matches" /></td>
-    <td><img src="ui/md/OrderMatches.PNG" alt="Order Matches"\/></td>
   </tr>
 </table>
 </div>

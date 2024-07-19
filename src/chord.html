@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Two-Level Chord Diagram</title>
+  <style>
+#legend {
+  position: absolute;
+  top: 50;
+  left: 50;
+  opacity: 1;
+  padding: 10px;
+  z-index: 1000; /* Ensure it is on top of other elements */
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+.legend-color {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  }
+  .legend-text {
+      color: white; /* Set the text color to white */
+  }
+
+div#tooltip {
+  opacity: 0;
+  position: absolute;
+  background-color: rgba(0,0,0,0.8);
+  border-radius: 5px;
+  color: white;
+  padding: 5px 10px 5px 10px;
+}
+  </style>
+</head>
+<body bgcolor="#1f232a"> 
+  <div id="legend"></div>
+  <div id='chart'><div id='tooltip'></div></div>
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+  <script>
+let fullData;
+let matrix;
+let accounts;
+let parties;
+let containerHeight;
+
+fetch('../config/chord.json')
+  .then(response => response.json())
+  .then(data => {
+
+  fullData = data;
+  matrix = data.matrix;
+  accounts = data.headers;
+  parties = data.names;
+  containerHeight = data.height
+  containerWidth = data.width
+
+  var width = containerWidth- 61;
+  var height = containerHeight - 61;
+  var outerRadius = Math.min(width, height) * 0.5 - 40;
+  var innerRadius = outerRadius - 10; 
+  var ribbonRadius = innerRadius - 6; // Adding a gap
+
+  const chord = d3.chord()
+    .padAngle(0.05)
+    .sortSubgroups(d3.descending);
+
+  const arc = d3.arc()
+    .innerRadius(innerRadius)
+    .outerRadius(outerRadius);
+
+  const ribbon = d3.ribbon()
+    .radius(ribbonRadius);
+
+  const partyColors = new Map();
+  const colors = [
+    "#c4c4c4", // Index 0
+    "#c4c4c4", // Index 1
+    "#c4c4c4", // Index 2
+    "#c4c4c4", // Index 3
+    "#c4c4c4", // Index 4
+    "#c4c4c4", // Index 5
+    "#c4c4c4", // Index 6
+    "#c4c4c4", // Index 7
+    "#69b40f", // Index 8
+    "#69b40f", // Index 9
+    "#ec1d25", // Index 10
+    "#c8125c", // Index 11
+    "#008fc8", // Index 12
+    "#10218b", // Index 13
+    "#134b24", // Index 14
+    "#134b24", // Index 15
+    "#134b24", // Index 16
+    "#737373", // Index 17
+    "#54a349", // Index 18
+    "#a87900", // Index 19
+    "#a87900", // Index 20
+    "#a87900", // Index 21
+    "#a87900", // Index 22
+    "#a87900", // Index 23
+    "#a87900", // Index 24
+    "#a87900", // Index 25
+  ];
+
+  parties.forEach((party, index) => {
+    partyColors.set(party, colors[index]);
+  });
+
+  const svg = d3.select("#chart").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .append("g")
+    .attr("transform", `translate(${width / 2},${height / 2})`);
+
+  const chords = chord(matrix);
+
+  const defs = svg.append("defs");
+
+  chords.forEach((d, i) => {
+  const gradient = defs.append("linearGradient")
+    .attr("id", `gradient${i}`)
+    .attr("gradientUnits", "userSpaceOnUse")
+    .attr("x1", ribbonRadius * Math.cos((d.source.startAngle + d.source.endAngle) / 2 - Math.PI / 2))
+    .attr("y1", ribbonRadius * Math.sin((d.source.startAngle + d.source.endAngle) / 2 - Math.PI / 2))
+    .attr("x2", ribbonRadius * Math.cos((d.target.startAngle + d.target.endAngle) / 2 - Math.PI / 2))
+    .attr("y2", ribbonRadius * Math.sin((d.target.startAngle + d.target.endAngle) / 2 - Math.PI / 2));
+
+  gradient.append("stop")
+    .attr("offset", "0%")
+    .attr("stop-color", partyColors.get(parties[d.source.index]));
+
+  gradient.append("stop")
+    .attr("offset", "100%")
+    .attr("stop-color", partyColors.get(parties[d.target.index]));
+    });
+
+  // Add the group arcs
+  const group = svg.append("g")
+    .selectAll("g")
+    .data(chords.groups)
+    .join("g");
+
+  group.append("path")
+    .attr("fill", d => partyColors.get(parties[d.index]))
+    .attr("stroke", 'black')
+    .attr("d", arc)
+
+
+// Add the ribbons
+  svg.append("g")
+    .selectAll("path")
+    .data(chords)
+    .join("path")
+    .attr("fill", d => `url(#gradient${chords.indexOf(d)})`)
+    .attr("stroke", d => {
+    const originalStroke = d3.rgb(partyColors.get(parties[d.source.index])).darker();
+    return originalStroke;
+    })
+    .attr("original-stroke", d => {
+      const originalStroke = d3.rgb(partyColors.get(parties[d.source.index])).darker();
+      return originalStroke;
+    })
+    .attr("d", ribbon)
+    .on("mouseover", function(event, d) {
+      isOverRibbon = true;
+      const ribbons = svg.selectAll("path"); // Select all ribbons
+      // Select all ribbons except the current one
+      const otherRibbons = ribbons.filter(function(ribbon) {
+        return ribbon !== d;
+      });
+      
+      // Set opacity to 0 for all other ribbons
+      otherRibbons
+        .transition()
+        .duration(50)
+        .style("opacity", 0.5);
+
+      // Tooltip logic
+      const tooltip = d3.select("#tooltip");
+      const value = matrix[d.source.index][d.target.index];
+      const formattedValue = Number(value).toLocaleString('en-US', {
+          style: 'currency',
+          currency: 'USD',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+      });
+      const sourceName = accounts[d.source.index];
+      const targetName = accounts[d.target.index];
+      tooltip.html(`From: ${sourceName}<br>To: ${targetName}<br>Value: ${formattedValue}`)
+        .style("opacity", 1)
+        .style("left", event.pageX + 10 + "px")
+        .style("top", event.pageY - 28 + "px")
+        .style("font-size", "11px")
+        .style("font-family", "Arial");
+    })
+    .on("mouseout", function(d) {
+      const ribbons = svg.selectAll("path"); // Select all ribbons
+      // Select all ribbons except the current one
+      const otherRibbons = ribbons.filter(function(ribbon) {
+        return ribbon !== d;
+      });
+      // Set opacity to 0 for all other ribbons
+      otherRibbons
+        .transition()
+        .duration(50)
+        .style("opacity", 1);
+
+      if (!isOverRibbon) {
+        const tooltip = d3.select("#tooltip");
+        setTimeout(function() {
+          tooltip.transition()
+            .duration(500)
+            .style("opacity", 0);
+        }, 10);
+      }
+       isOverRibbon = false;      
+    })
+
+  group.append("text")
+    .each(d => d.angle = (d.startAngle + d.endAngle) / 2)
+    .attr("dy", ".35em")
+    .attr("transform", d => `
+    rotate(${(d.angle * 180 / Math.PI - 90)})
+    translate(${outerRadius + 20})
+    rotate(${-(d.angle * 180 / Math.PI) +90})
+    `)
+    .attr("text-anchor", d => d.angle > Math.PI ? "end" : null)
+    .attr("fill", "white") 
+    .style("font-family", "Arial")
+    .style("font-size", "11px")
+    .style("opacity", 0)
+    .text((d, i) => accounts[i]);
+
+  const nameColorPairs = Array.from(new Set(parties.map((name, index) => `${name}|${colors[index]}`)))
+    .map(d => {
+        const [name, color] = d.split('|');
+        return { name, color };
+    });
+
+  // Select the legend div and bind the nameColorPairs data
+  const legend = d3.select("#legend")
+    .selectAll(".legend-item")
+    .data(nameColorPairs)
+    .enter()
+    .append("div")
+    .attr("class", "legend-item");
+
+  // Append the colored rectangles
+  legend.append("div")
+    .attr("class", "legend-color")
+    .style("background-color", d => d.color);
+
+  // Append the name text
+  legend.append("div")
+    .style("color", "white")
+    .style("font-family", "Arial")
+    .style("font-size", "11px")
+    .text(d => d.name);
+})
+.catch(error => {
+    console.error('Error loading tree data:', error);
+});
+  </script>
+</body>
+</html>
