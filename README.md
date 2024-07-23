@@ -160,6 +160,7 @@ Users can further refine the graph by selecting specific categories from the dro
 1. 674227-846011921
 1. 619320-891517635
 1. 218904-348011980
+
 As the graph is filtered, the label in the top right corner updates dynamically, displaying the total amount of funds from the original starting transaction that were traced to these end destinations. In this case, the Last-In, First-Out methodology reveals that $6,140.12 out of the initial $420,000.00 transaction were paid to these three accounts.
 
 <img src="ui/md/TreeFilterEndPoints.png" alt="Filtered Tree Graph" />
